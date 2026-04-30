@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+    
+    <!-- Google Fonts: Outfit, Space Grotesk (Labels), and Righteous (Logo) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Righteous&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --copper-light: #e88b71;
+            --copper-main: #cf684b;
+            --copper-dark: #8d4229;
+            --bg-base: #0f0e0d;
+            --bg-card: #1a1716;
+            --bg-placeholder: #252120;
+            --text-main: #f9f6f5;
+            --text-muted: #a69e9c;
+            --border-radius: 24px;
+            --transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; background-color: var(--bg-base); }
+        body { font-family: 'Outfit', sans-serif; color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        
+        /* Custom Smooth Cursor (Hidden on mobile) */
+        @media (pointer: fine) {
+            body { cursor: none; }
+            .cursor-dot, .cursor-outline {
+                position: fixed;
+                top: 0; left: 0;
+                transform: translate(-50%, -50%);
+                border-radius: 50%;
+                z-index: 9999;
+                pointer-events: none;
+                will-change: transform, width, height;
+            }
+            .cursor-dot {
+                width: 8px; height: 8px;
+                background-color: var(--copper-light);
+                transition: transform 0s;
+            }
+            .cursor-outline {
+                width: 40px; height: 40px;
+                border: 2px solid rgba(207, 104, 75, 0.5);
+                transition: width 0.3s, height 0.3s, background-color 0.3s;
+            }
+            .cursor-outline.hovering {
+                width: 60px; height: 60px;
+                background-color: rgba(207, 104, 75, 0.1);
+                border-color: var(--copper-main);
+            }
+        }
+
+        /* Ambient Animated Background Glows */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: -1; overflow: hidden;
+        }
+        .glow-orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(120px); opacity: 0.15;
+            will-change: transform;
+        }
+        .glow-1 {
+            width: 50vw; height: 50vw; background: var(--copper-main);
+            top: -10%; left: -10%;
+            animation: floatGlow 20s ease-in-out infinite alternate;
+        }
+        .glow-2 {
+            width: 40vw; height: 40vw; background: var(--copper-dark);
+            bottom: -10%; right: -10%;
+            animation: floatGlow 25s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes floatGlow {
+            0% { transform: translate3d(0, 0, 0) scale(1); }
+            100% { transform: translate3d(10%, 15%, 0) scale(1.2); }
+        }
+
+        /* Hardware Accelerated Scroll Reveal Class */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), 
+                        transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: opacity, transform;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; position: relative; }
+
+        nav {
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            background: rgba(15, 14, 13, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        
+        .logo { 
+            font-family: 'Righteous', cursive;
+            font-size: 1.5rem; 
+            color: var(--copper-main); 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            letter-spacing: 0.02em;
+        }
+
+        .hero { text-align: center; padding: 8rem 0 6rem 0; position: relative; }
+        
+        @keyframes morphBlob {
+            0%, 100% { border-radius: 35% 65% 70% 30% / 30% 40% 60% 70%; }
+            25% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            50% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            75% { border-radius: 50% 50% 30% 70% / 50% 50% 70% 30%; }
+        }
+
+        .user-profile {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            margin-bottom: 2rem;
+            border: 3px solid var(--copper-main);
+            padding: 5px;
+            transition: var(--transition);
+            animation: morphBlob 8s ease-in-out infinite; 
+            will-change: border-radius, transform;
+        }
+        .user-profile:hover { 
+            border-radius: 50%; 
+            transform: rotate(5deg) scale(1.05); 
+            animation-play-state: paused; 
+            box-shadow: 0 0 30px rgba(207, 104, 75, 0.4);
+        }
+        
+        .hero h1 { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem; }
+        .hero h1 span { color: var(--copper-main); }
+        .hero p { font-size: 1.2rem; max-width: 550px; margin: 0 auto; opacity: 0.8; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2.5rem;
+            padding-bottom: 5rem;
+        }
+
+        .project-card {
+            position: relative;
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.03);
+            will-change: transform, box-shadow;
+        }
+
+        /* 60FPS CSS Glass Shine Effect */
+        .project-card::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-20deg);
+            transition: 0.7s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .project-card:hover::after { left: 200%; }
+
+        .project-card:hover {
+            transform: translateY(-12px) scale(1.01);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 20px rgba(207, 104, 75, 0.1);
+            border-color: rgba(207, 104, 75, 0.3);
+        }
+
+        .card-media {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            background: var(--bg-placeholder);
+        }
+
+        .card-media img, .card-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: transform;
+        }
+
+        .project-card:hover .card-media img { transform: scale(1.08); }
+
+        .card-info {
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-header { display: flex; align-items: center; gap: 1rem; }
+
+        .project-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: var(--bg-placeholder);
+            object-fit: contain;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card-category {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--copper-main);
+            font-weight: 700;
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .view-link {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+
+        .project-card:hover .view-link { 
+            color: var(--copper-main); 
+            transform: translateX(5px);
+        }
+
+        footer {
+            padding: 4rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            .hero { padding: 5rem 0 3rem 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Smooth Custom Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <!-- Ambient Glowing Background -->
+    <div class="ambient-bg">
+        <div class="glow-orb glow-1"></div>
+        <div class="glow-orb glow-2"></div>
+    </div>
+
+    <nav>
+        <div class="container nav-content">
+            <div class="logo"><i class="ph-fill ph-shooting-star"></i> Welcome!</div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Added Reveal class to animate in -->
+        <section class="hero reveal">
+            <img src="user.png" class="user-profile" alt="Profile" onerror="this.style.display='none'">
+            <h1>Creating <span>Cool Stuff</span></h1>
+            <p>Welcome to my portfolio! Here, I showcase my newest projects. Scroll down to see them! :D</p>
+        </section>
+
+        <div class="grid" id="project-grid">
+            <!-- Projects injected here by JavaScript -->
+        </div>
+    </main>
+
+    <footer class="reveal">
+        <div class="container">
+            <p>&copy; 2026. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * PROJECT DATABASE
+         */
+        const myProjects = [
+            {
+                title: "Spawnerfied",
+                category: " ",
+                description: "Spawnify Your Game! GUI Resource Pack For Minecraft: Java Edition.",
+                logo: "spawnerfied-logo.png",
+                image: "screenshot.jpg",
+                video: "spawnerfied.mp4",
+                link: "https://modrinth.com/resourcepack/spawnerfied"
+            },
+        ];
+
+        const grid = document.getElementById('project-grid');
+
+        function renderProjects() {
+            grid.innerHTML = myProjects.map((project, index) => `
+                <div class="project-card reveal" style="transition-delay: ${index * 0.1}s" onclick="window.open('${project.link}', '_blank')">
+                    <div class="card-media" data-fallback="${project.image || ''}">
+                        ${project.video ? 
+                            `<video autoplay loop muted playsinline poster="${project.image || ''}"><source src="${project.video}" type="video/mp4"></video>` : 
+                            `<img src="${project.image}" alt="${project.title}" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop'">`
+                        }
+                    </div>
+                    <div class="card-info">
+                        <span class="card-category">${project.category}</span>
+                        <div class="card-header">
+                            <img src="${project.logo}" class="project-logo" alt="Logo" onerror="this.style.display='none'">
+                            <h3 class="card-title">${project.title}</h3>
+                        </div>
+                        <p class="card-description">${project.description || ''}</p>
+                        <div class="card-footer">
+                            <span class="view-link">Exploration <i class="ph ph-arrow-up-right"></i></span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Initialize Scroll Reveal for generated items
+            initScrollReveal();
+            // Attach cursor events to new cards
+            attachCursorEvents();
+        }
+
+        renderProjects();
+
+        // 60FPS Smooth Custom Cursor Engine
+        const dot = document.querySelector('.cursor-dot');
+        const outline = document.querySelector('.cursor-outline');
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let outlineX = mouseX;
+        let outlineY = mouseY;
+
+        // Detect if device supports hover (ignores mobile touchscreens)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                // Instantly move the dot
+                dot.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
+            });
+
+            // hardware accelerated smooth trailing outline using RequestAnimationFrame
+            const renderCursor = () => {
+                outlineX += (mouseX - outlineX) * 0.15; // Smoothness factor
+                outlineY += (mouseY - outlineY) * 0.15;
+                outline.style.transform = `translate(calc(${outlineX}px - 50%), calc(${outlineY}px - 50%))`;
+                requestAnimationFrame(renderCursor);
+            };
+            requestAnimationFrame(renderCursor);
+        }
+
+        // Expand cursor on clickable items
+        function attachCursorEvents() {
+            const clickables = document.querySelectorAll('.project-card, .logo, a');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => outline.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => outline.classList.remove('hovering'));
+            });
+        }
+
+        // Intersection Observer for Smooth Scroll Reveals
+        function initScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        // Optional: stop observing once revealed
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        // Global Error Handling: Fetches YOUR screenshot first if the video fails
+        document.addEventListener('error', function(e) {
+            if (e.target.tagName === 'VIDEO' || e.target.tagName === 'SOURCE') {
+                const mediaDiv = e.target.closest('.card-media');
+                if (mediaDiv && !mediaDiv.querySelector('img')) {
+                    const fallbackSrc = mediaDiv.getAttribute('data-fallback');
+                    const img = document.createElement('img');
+                    
+                    img.src = fallbackSrc ? fallbackSrc : 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop';
+                    img.onerror = function() {
+                        this.src = 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop';
+                    };
+                    
+                    mediaDiv.innerHTML = '';
+                    mediaDiv.appendChild(img);
+                }
+            }
+        }, true);
+    </script>
+</body>
+    </html>
